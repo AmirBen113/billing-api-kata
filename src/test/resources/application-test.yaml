@@ -1,0 +1,18 @@
+# Test Profile Configuration
+server:
+  port: 8888
+app:
+  external-api:
+    catalog-url: "http://localhost:8888/external-api"
+
+resilience4j.circuitbreaker:
+  instances:
+    catalogService:
+      # We use a very small window for tests to trigger state changes easily
+      slidingWindowSize: 5
+      registerHealthIndicator: true
+
+# Disable detailed logs during tests to keep the output clean
+logging:
+  level:
+    fr.caassurances.kata: WARN

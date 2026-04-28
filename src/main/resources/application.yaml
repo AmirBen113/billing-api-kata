@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: billing-api
+
+# Logging configuration for traceability
+logging:
+  level:
+    root: INFO
+    # Trace incoming and outgoing HTTP calls as requested
+    fr.caassurances.kata.billing.infrastructure: DEBUG
+    org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
+
+# Custom properties for adapter
+app:
+  external-api:
+    catalog-url: "http://localhost:8080/external-api"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, circuitbreakerevents
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+resilience4j.circuitbreaker:
+  instances:
+    catalogService:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000ms
