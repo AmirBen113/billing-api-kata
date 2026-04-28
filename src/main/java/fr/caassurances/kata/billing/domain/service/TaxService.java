@@ -23,7 +23,7 @@ public class TaxService {
      */
     public Invoice createInvoice(Cart cart) {
         // 1. Map each cart item to an invoice line with its specific tax calculations
-        List<InvoiceLine> lines = cart.items().stream()
+        List<InvoiceLine> lines = cart.items().parallelStream()
                 .map(this::mapToInvoiceLine)
                 .toList();
 
@@ -100,4 +100,5 @@ public class TaxService {
                 .multiply(ROUNDING_STEP)
                 .setScale(2, RoundingMode.HALF_UP);
     }
+
 }

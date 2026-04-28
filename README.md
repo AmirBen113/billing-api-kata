@@ -62,6 +62,25 @@ The API is **Cloud-Native** and ready for Kubernetes deployment:
 mvn clean install
 mvn spring-boot:run
 ```
+
+### Option 2: Run with Docker Compose (One-Click)
+This will compile the app inside a container and start the API:
+
+```bash
+docker-compose up --build
+```
+The API will be available at **http://localhost:8080**.
+
+---
+
+## ⚙️ CI/CD Pipeline
+This project uses **GitHub Actions** for Continuous Integration:
+
+* **Automated Testing**: Every push to `main` triggers a full build and test suite on a neutral environment.
+* **Status Badge**: Check the top of this README for the real-time build status.
+
+---
+
 ## 📡 API Endpoints
 
 | Action | Method | Endpoint | Description |
@@ -70,12 +89,16 @@ mvn spring-boot:run
 | **Generate Invoice** | `POST` | `/api/billing/invoice` | Processes a cart and returns full tax details. |
 | **Health Check** | `GET` | `/actuator/health` | Deep health check including external API status. |
 
+---
+
 ## 🧪 Testing Strategy
 
 * **Unit Tests**: Coverage of complex tax rounding logic (Strategy pattern).
-* **Integration Tests**: End-to-end flow using `@SpringBootTest` with a dedicated **test profile** and dynamic port injection (`${local.server.port}`).
+* **Integration Tests**: End-to-end flow using `@SpringBootTest` with a dedicated **test profile** and dynamic port injection.
 * **Resilience Tests**: Validated fallback behavior when external dependencies are unavailable.
+
+---
 
 ## 💡 Author's Note
 
-As a **Technical Leader (12+ years exp)**, I prioritized **maintainability** and **observability**. By choosing a Hexagonal approach, I ensured that the core business logic remains testable in isolation, while the infrastructure is robust enough to handle real-world distributed system failures (Circuit Breaker, Health Monitoring).
+As a **Technical Leader (12+ years exp)**, I prioritized **maintainability** and **observability**. By choosing a Hexagonal approach, I ensured that the core business logic remains testable in isolation, while the infrastructure is robust enough to handle real-world distributed system failures.

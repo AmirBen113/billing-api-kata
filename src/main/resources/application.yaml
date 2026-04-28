@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: billing-api
+  threads:
+    virtual:
+      enabled: true
 
 # Logging configuration for traceability
 logging:
@@ -12,11 +15,6 @@ logging:
     # Trace incoming and outgoing HTTP calls as requested
     fr.caassurances.kata.billing.infrastructure: DEBUG
     org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
-
-# Custom properties for adapter
-app:
-  external-api:
-    catalog-url: "http://localhost:8080/external-api"
 
 management:
   endpoints:
@@ -37,3 +35,8 @@ resilience4j.circuitbreaker:
       slidingWindowSize: 10
       failureRateThreshold: 50
       waitDurationInOpenState: 10000ms
+
+# Custom properties for adapter
+app:
+  external-api:
+    catalog-url: "http://localhost:8080/external-api"
