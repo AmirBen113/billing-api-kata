@@ -74,6 +74,7 @@ public class TaxService {
      * Calculates total taxes for the line based on unit differences.
      */
     private InvoiceLine mapToInvoiceLine(CartItem item) {
+        //simulateLatency();
         BigDecimal unitPriceInclTax = calculatePriceInclTax(item.product());
 
         // Unit tax = Rounded Price TTC - Original Price HT
@@ -99,6 +100,14 @@ public class TaxService {
         return value.divide(ROUNDING_STEP, 0, RoundingMode.UP)
                 .multiply(ROUNDING_STEP)
                 .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void simulateLatency() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
 }
