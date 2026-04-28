@@ -32,7 +32,18 @@ public class BillingController {
     @ApiResponse(responseCode = "200", description = "Invoice successfully generated")
     @ApiResponse(responseCode = "400", description = "Invalid cart data provided")
     public Invoice generateInvoice(@Valid @RequestBody Cart cart) {
+        long startTime = System.nanoTime(); // Précision à la nanoseconde
+
         log.info("Incoming request: Generating invoice for cart with {} items", cart.items().size());
-        return  generateInvoiceUseCase.execute(cart);
+        Invoice invoice = generateInvoiceUseCase.execute(cart);
+
+        long endTime = System.nanoTime();
+        long durationMs = (endTime - startTime) / 1_000_000;
+
+        log.info(">>> Invoice generated in {}ms [Virtual Threads: {}]",
+                durationMs,
+                Thread.currentThread().isVirtual());
+
+        return invoice;
     }
 }

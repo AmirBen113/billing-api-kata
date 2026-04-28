@@ -11,7 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TaxServiceTest {
 
-    private final TaxService taxService = new TaxService();
+    private final TaxCalculator taxCalculator = new TaxCalculator();
+    private final TaxService taxService = new TaxService(taxCalculator);
 
     @Test
     @DisplayName("Should apply 10% tax on books and 5% on imports with 0.05 rounding")

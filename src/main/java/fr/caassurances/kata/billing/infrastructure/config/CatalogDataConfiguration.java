@@ -21,7 +21,7 @@ public class CatalogDataConfiguration {
         ProductType[] types = ProductType.values();
         String[] names = {"Eco", "Premium", "Deluxe", "Standard", "Basic", "Master", "Ultra"};
 
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 1000; i++) {
             ProductType type = types[random.nextInt(types.length)];
             String name = names[random.nextInt(names.length)] + " " + type.name().toLowerCase() + " item #" + i;
 

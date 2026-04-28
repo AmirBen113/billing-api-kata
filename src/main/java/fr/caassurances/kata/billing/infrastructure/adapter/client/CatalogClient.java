@@ -6,6 +6,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -34,6 +35,7 @@ public class CatalogClient implements ProductRepository {
      */
     @Override
     @CircuitBreaker(name = "catalogService", fallbackMethod = "getFallbackProducts")
+    @Cacheable(value = "catalog")
     public List<Product> fetchAllProducts() {
         return webClient.get()
                 .uri("/products")

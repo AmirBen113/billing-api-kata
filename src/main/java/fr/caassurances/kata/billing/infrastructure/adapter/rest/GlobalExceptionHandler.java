@@ -1,5 +1,6 @@
 package fr.caassurances.kata.billing.infrastructure.adapter.rest;
 
+import fr.caassurances.kata.billing.domain.exception.BusinessException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,11 @@ public class GlobalExceptionHandler {
                 "An internal error occurred",
                 "Please contact the technical support team."
         );
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<String> handleBusiness(BusinessException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     /**
