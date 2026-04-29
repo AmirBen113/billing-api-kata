@@ -11,15 +11,22 @@ The application follows the **Hexagonal Architecture** (Ports & Adapters) patter
 ```mermaid
 graph TD
     subgraph Infrastructure
-        A[REST Controller] --> B[Input Port]
-        D[Output Adapter - WebClient] -.-> E[External Catalog API]
+        A[REST Controller] -- 1. Request --> B
+        D[Output Adapter - WebClient] -- 3. Fetch --> E[External Catalog API]
     end
+
+    subgraph Application
+        B[Input Port / Use Case Interface] -- 2. Call --> C
+    end
+
     subgraph Domain
-        B --> C[Billing Service]
-        C --> F[Tax Calculation Strategy]
+        C[Billing Service] -- 4. Process --> F[Tax Calculation Strategy]
     end
-    C -.-> G[Output Port]
-    G --> D
+
+    C -- "Get Product Info" --> G[Output Port / Repository Interface]
+    G -- "Invoke" --> D
+    E -.-> |Return Data| D
+    D -.-> |Return Product| C
  ```
 
 * **Domain Layer**: Contains pure business logic (Tax strategies, 0.05 rounding rules) and immutable `Records`. Zero dependencies on external frameworks.
