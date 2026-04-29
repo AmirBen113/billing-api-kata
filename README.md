@@ -8,6 +8,20 @@ This project is a high-reliability Java API designed to calculate shopping cart 
 
 The application follows the **Hexagonal Architecture** (Ports & Adapters) pattern to ensure a strict decoupling between business rules and technical infrastructure:
 
+```mermaid
+graph TD
+    subgraph Infrastructure
+        A[REST Controller] --> B[Input Port]
+        D[Output Adapter - WebClient] -.-> E[External Catalog API]
+    end
+    subgraph Domain
+        B --> C[Billing Service]
+        C --> F[Tax Calculation Strategy]
+    end
+    C -.-> G[Output Port]
+    G --> D
+ ```
+
 * **Domain Layer**: Contains pure business logic (Tax strategies, 0.05 rounding rules) and immutable `Records`. Zero dependencies on external frameworks.
 * **Infrastructure Layer**: Implements **Adapters** (REST Controllers, WebClient, Resilience4j).
 * **Application Layer**: Orchestrates use cases and ensures **security/consistency** by reconciling client cart data with the official product catalog.
@@ -21,7 +35,7 @@ To meet enterprise-grade requirements, the API includes advanced stability patte
 * **Circuit Breaker (Resilience4j)**: Protects the system from cascading failures when the external Catalog API is down or slow.
 * **Graceful Fallback**: If the catalog service is unreachable, the system enters a degraded mode to ensure business continuity.
 * **Global Exception Handling**: Implements **RFC 7807 (Problem Details)** to return structured, professional JSON errors instead of raw stack traces.
-
+* **Caching (Caffeine)**: Implemented a high-performance local cache to reduce latency and overhead on the external Catalog API. This ensures fast response times for frequently accessed tax data and provides an extra layer of stability if the external service experiences intermittent slow-downs.
 ---
 
 ## 📊 Business Rules (Taxes)
