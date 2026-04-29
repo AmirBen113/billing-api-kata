@@ -1,5 +1,7 @@
 package fr.caassurances.kata.billing.domain.usecase;
 
+import fr.caassurances.kata.billing.domain.exception.InvalidDataException;
+import fr.caassurances.kata.billing.domain.exception.ProductNotFoundException;
 import fr.caassurances.kata.billing.domain.model.Cart;
 import fr.caassurances.kata.billing.domain.model.CartItem;
 import fr.caassurances.kata.billing.domain.model.Invoice;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +37,15 @@ public class GenerateInvoiceUseCase {
         // 2. Re-build the cart items with official data to prevent price fraud
         List<CartItem> validatedItems = cart.items().stream()
                 .map(item -> {
-                    Product officialProduct = catalogMap.getOrDefault(item.product().id(), item.product());
+                    Integer productId = Optional.ofNullable(item.product())
+                            .map(Product::id)
+                            .orElseThrow(() -> new InvalidDataException("A cart item does not contain a valid product"));
+
+                    Product officialProduct = catalogMap.get(productId);
+
+                    if (officialProduct == null) {
+                        throw new ProductNotFoundException("Product with ID " + productId + " is unknown in the catalog");
+                    }
                     return new CartItem(officialProduct, item.quantity());
                 })
                 .toList();
