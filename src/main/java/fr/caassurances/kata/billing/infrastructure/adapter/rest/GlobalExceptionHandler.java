@@ -16,7 +16,6 @@ import java.util.Map;
 
 /**
  * Centralized exception handling for the Billing API.
- * Ensures professional and structured JSON responses even in case of failure.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -24,7 +23,27 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
-     * Handles 503 errors from the external Catalog API.
+     * Handles specialized Business errors.
+     * Automatically switches to 404 NOT FOUND if the exception name contains "NotFound",
+     * otherwise defaults to 400 BAD REQUEST.
+     */
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Map<String, Object>> handleBusinessException(BusinessException ex) {
+        log.warn("Business rule violation: {}", ex.getMessage());
+
+        HttpStatus status = ex.getClass().getSimpleName().contains("NotFound")
+                ? HttpStatus.NOT_FOUND
+                : HttpStatus.BAD_REQUEST;
+
+        return buildResponse(
+                status,
+                "Business Rule Error",
+                ex.getMessage()
+        );
+    }
+
+    /**
+     * Handles errors from the external Catalog API
      */
     @ExceptionHandler(WebClientResponseException.class)
     public ResponseEntity<Map<String, Object>> handleExternalApiError(WebClientResponseException ex) {
@@ -32,18 +51,17 @@ public class GlobalExceptionHandler {
 
         HttpStatus status = (HttpStatus) ex.getStatusCode();
         String message = "External Catalog service error";
-        String details = ex.getMessage();
 
         if (status == HttpStatus.SERVICE_UNAVAILABLE) {
             message = "Catalog service is temporarily down (503)";
-            details = "The billing process cannot proceed with official prices.";
         }
 
-        return buildResponse(status, message, details);
+        return buildResponse(status, message, "The billing process cannot proceed with official prices.");
     }
 
     /**
      * Handles cases where the Circuit Breaker is OPEN.
+     * Prevents system overload by rejecting requests early.
      */
     @ExceptionHandler(CallNotPermittedException.class)
     public ResponseEntity<Map<String, Object>> handleCircuitBreakerOpen(CallNotPermittedException ex) {
@@ -56,15 +74,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles validation or business logic errors (e.g., negative prices, empty carts).
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleBadRequest(IllegalArgumentException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid request data", ex.getMessage());
-    }
-
-    /**
-     * Global fallback for any unhandled exception (500 Internal Server Error).
+     * Global fallback for any unexpected internal error (500).
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleAllErrors(Exception ex) {
@@ -72,17 +82,12 @@ public class GlobalExceptionHandler {
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An internal error occurred",
-                "Please contact the technical support team."
+                "Please contact the technical support team for further investigation."
         );
     }
 
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<String> handleBusiness(BusinessException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
     /**
-     * Helper method to build a standardized error JSON.
+     * Helper method to build a standardized and consistent error JSON structure.
      */
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message, String details) {
         Map<String, Object> body = new HashMap<>();
